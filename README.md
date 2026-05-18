@@ -5,7 +5,25 @@ This project is a full-stack, AI-powered financial assistant designed to hold mu
 
 The architecture is explicitly designed to maintain absolute per-user isolation, enforce deterministic business rules independently of the Large Language Model (LLM), and leverage the LLM strictly for conversational phrasing and natural language generation.
 
-## 2. Architecture Overview
+## 2. Technology Stack & Choices
+
+### Frontend
+* **React** (`19.2.x`): Component-based architecture for a highly interactive UI.
+* **TypeScript** (`6.0.x`): Strict type safety, eliminating entire classes of runtime errors and ensuring robust API integration.
+* **Vite** (`8.0.x`): Next-generation frontend tooling for instantaneous hot module replacement (HMR).
+* **Vanilla CSS**: Kept the bundle size minimal by avoiding heavy UI frameworks, relying exclusively on modern CSS features to implement the premium, AI-native aesthetic.
+
+### Backend
+* **Python** (`3.11+`): The foundational language, utilized for its clean syntax and AI tooling ecosystem.
+* **Flask** (`3.1.0`): A micro-framework perfectly suited for lightweight, decoupled orchestration logic without the overhead of heavy frameworks.
+* **Pytest** (`8.3.5`) & **Requests** (`2.32.3`): Used for robust, end-to-end integration testing against a live HTTP server, intentionally avoiding mocks to ensure absolute reliability.
+* **Flask-CORS** (`5.0.0`) & **Python-dotenv** (`1.1.0`): Essential middleware for secure cross-origin requests and environment variable management.
+
+### AI & LLM Integration
+* **Groq SDK** (`0.28.0`): Chosen for its ultra-low latency inference API.
+* **LLM Model**: Integrates the `llama-3.3-70b-versatile` model to provide lightning-fast, highly conversational natural language generation grounded in the deterministic backend logic.
+
+## 3. Architecture Overview
 The system is divided into a robust, deterministic Python/Flask backend and a lightweight React/TypeScript frontend.
 
 ```mermaid
@@ -20,7 +38,7 @@ graph TD
     API --> UI
 ```
 
-## 3. System Design Philosophy
+## 4. System Design Philosophy
 A fundamental design decision in this architecture is the strict separation between **deterministic business logic** and **LLM reasoning**.
 
 LLMs are highly prone to hallucinations and non-deterministic behavior, particularly when dealing with hard mathematical constraints or strict eligibility thresholds. To mitigate this risk, the LLM is **not** trusted to evaluate eligibility, remember rules, or determine missing fields. 
@@ -32,7 +50,7 @@ Instead:
 
 This approach guarantees absolute consistency in eligibility decisions, makes the business logic completely unit-testable without relying on expensive and slow LLM calls, and ensures regulatory-level safety.
 
-## 4. Backend Architecture
+## 5. Backend Architecture
 The backend is structured to isolate responsibilities across specialized modules:
 
 * **`app.py`**: The orchestration layer (Flask API). Manages HTTP requests, invokes the memory and logic layers, handles conversational continuation flows, and communicates with the Groq LLM API.
@@ -42,7 +60,7 @@ The backend is structured to isolate responsibilities across specialized modules
 * **`products.py`**: The static dataset containing financial product definitions and eligibility constraints.
 * **`tests/test_chat.py`**: End-to-end integration tests that run against the live local server to verify state isolation, context retention, and strict eligibility rule enforcement.
 
-## 5. Conversation & Memory Flow
+## 6. Conversation & Memory Flow
 
 ```mermaid
 sequenceDiagram
@@ -70,7 +88,7 @@ sequenceDiagram
 ### Conversational Continuation
 The system utilizes a lightweight continuation architecture. If a user was previously asked for missing fields (e.g., "What is your credit score?") and the user replies with raw data ("600"), `app.py` intercepts the flow, merges the new data with the in-memory profile, and re-triggers the specific product eligibility check dynamically, ensuring seamless multi-turn data gathering without losing context.
 
-## 6. Features Implemented
+## 7. Features Implemented
 
 | Feature | Status | Description |
 |---|---|---|
@@ -86,7 +104,7 @@ The system utilizes a lightweight continuation architecture. If a user was previ
 | Debug Panel | Included | Exposes raw backend metadata on the frontend for verification. |
 | Integration Tests | Included | Full end-to-end pytest suite verifying requirements. |
 
-## 7. Frontend Overview
+## 8. Frontend Overview
 The frontend is a single-page application built with React 18, TypeScript, and Vite. 
 
 * **State Persistence**: Uses `localStorage` to persist a unique `user_id` (UUID), ensuring users do not lose their session upon page refresh.
@@ -94,7 +112,7 @@ The frontend is a single-page application built with React 18, TypeScript, and V
 * **Debug Visibility**: Every assistant message dynamically renders a collapsed "Debug info" `<details>` panel. Expanding it reveals the raw JSON metadata returned from the API (matched products, missing fields, etc.), allowing reviewers to explicitly verify the backend logic state independently of the LLM's natural language output.
 * **Clean Architecture**: Designed entirely with pure, vanilla CSS to maintain simplicity and avoid unnecessary heavy frameworks or external UI dependencies.
 
-## 8. API Documentation
+## 9. API Documentation
 
 ### POST `/chat`
 Submits a user message and retrieves the assistant's response alongside logic metadata.
@@ -144,7 +162,7 @@ Simple health check endpoint.
 }
 ```
 
-## 9. Testing
+## 10. Testing
 The project includes a robust suite of integration tests built with `pytest`. 
 These tests execute live HTTP requests against the running Flask backend. Mocks are intentionally avoided to ensure the actual end-to-end integration (including prompt building, LLM execution, and JSON parsing) functions correctly.
 
@@ -152,7 +170,7 @@ All 8 scenarios described in the assignment are fully covered, including product
 
 *(See Screenshots Section for test execution results)*
 
-## 10. Running the Project
+## 11. Running the Project
 
 ### Prerequisites
 
@@ -233,31 +251,31 @@ pytest backend/tests -v
 ```
 
 
-## 11. Environment Variables
+## 12. Environment Variables
 The backend requires a `.env` file at the root of the project. A `.env.example` file is provided for reference.
 
 ```env
 GROQ_API_KEY=your_groq_api_key_here
 ```
 
-## 12. Assumptions
+## 13. Assumptions
 * **In-Memory Storage**: An in-memory dictionary is sufficient for maintaining conversational state within the scope of this assignment. 
 * **Single Process Runtime**: The backend is intended to run as a single process for local development. In-memory state would not sync automatically across multiple load-balanced workers without an external datastore like Redis.
 * **Localhost Environment**: Vite proxies API requests directly to `http://localhost:5000`, assuming local development defaults.
 
-## 13. Known Limitations
+## 14. Known Limitations
 * **Ephemeral Memory**: All user profiles and chat histories are lost when the Flask server restarts.
 * **Slot Extraction**: The extraction relies on RegEx patterns. While sufficient for common conversational patterns, highly unconventional phrasings (e.g., "my income translates to 50k a month") might fail to match.
 * **Authentication**: There is no secure authentication. User IDs are dynamically generated client-side UUIDs.
 
-## 14. What I Would Improve With More Time
+## 15. What I Would Improve With More Time
 * **Persistent Storage**: Implement Redis or PostgreSQL to persist user profiles and chat logs permanently.
 * **Structured Tool Calling**: Replace RegEx-based slot extraction with native LLM function/tool calling (e.g., OpenAI/Groq function definitions) for significantly more robust intent and entity extraction.
 * **Streaming Responses**: Implement Server-Sent Events (SSE) on the backend and frontend to stream tokens back to the user, improving perceived latency.
 * **Dockerization**: Provide a `docker-compose.yml` file to spin up the frontend and backend simultaneously in isolated containers.
 * **Semantic Retrieval (RAG)**: If the product catalog expanded, I would implement a vector database for semantic search rather than relying on keyword matching.
 
-## 15. AI Tooling Disclosure
+## 16. AI Tooling Disclosure
 Used ChatGPT during the initial stages for requirement analysis, architectural planning, optimization discussions and implementation guidance.   
 Used Claude for generating structured development plans, workflow breakdowns and directional guidance throughout development.    
 Followed and manually executed these plans step-by-step for setup, integration, configuration and implementation tasks.   
@@ -265,7 +283,7 @@ Used Antigravity to accelerate repetitive engineering work, larger boilerplate g
 AI-generated outputs were consistently reviewed, modified, cross-validated and manually integrated rather than directly copied into production.   
 Core architectural decisions, optimization strategies, debugging, testing, and final verification were deliberately handled through manual engineering effort to ensure correctness, maintainability and reliability.     
 
-## 16. Repository Structure
+## 17. Repository Structure
 ```
 .
 ├── backend/
@@ -298,7 +316,7 @@ Core architectural decisions, optimization strategies, debugging, testing, and f
 └── README.md
 ```
 
-## 17. Screenshots Section
+## 18. Screenshots Section
 
 
 ### Chat Example
