@@ -154,40 +154,84 @@ All 8 scenarios described in the assignment are fully covered, including product
 
 ## 10. Running the Project
 
+### Prerequisites
+
+* Python 3.11+
+* Node.js 18+
+* npm
+* A valid Groq API key
+
+---
+
+## Option A — Standard Manual Startup (Recommended)
+
 ### Backend Setup
+
 ```bash
 # 1. Create and activate a virtual environment
 python -m venv venv
 
 # Windows
 .\venv\Scripts\activate
+
 # Mac/Linux
 source venv/bin/activate
 
-# 2. Install dependencies
+# 2. Install backend dependencies
 pip install -r backend/requirements.txt
 
-# 3. Start the Flask server (runs on port 5000)
+# 3. Start the Flask backend (runs on port 5000)
 python -m backend.app
 ```
 
 ### Frontend Setup
+
+Open a second terminal:
+
 ```bash
 # 1. Navigate to frontend directory
 cd frontend
 
-# 2. Install dependencies
+# 2. Install frontend dependencies
 npm install
 
-# 3. Start the Vite dev server
+# 3. Start the Vite development server
 npm run dev
 ```
 
-### Running Tests
+The frontend will typically run on:
+
+```txt
+http://localhost:5173
+```
+
+---
+
+## Option B — One-Command Startup (Windows Convenience Script)
+
+For easier local development on Windows, the project also includes a helper script that launches both the backend and frontend automatically in separate terminals.
+
+From the project root:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\start.ps1
+```
+
+This will automatically:
+
+* launch the Flask backend on port 5000
+* launch the Vite frontend on port 5173
+
+---
+
+## Running Tests
+
 Ensure the backend server is actively running on `localhost:5000`, then execute:
+
 ```bash
 pytest backend/tests -v
 ```
+
 
 ## 11. Environment Variables
 The backend requires a `.env` file at the root of the project. A `.env.example` file is provided for reference.
@@ -195,7 +239,6 @@ The backend requires a `.env` file at the root of the project. A `.env.example` 
 ```env
 GROQ_API_KEY=your_groq_api_key_here
 ```
-Note: The `.env` file is excluded via `.gitignore` and should never be committed to version control.
 
 ## 12. Assumptions
 * **In-Memory Storage**: An in-memory dictionary is sufficient for maintaining conversational state within the scope of this assignment. 
@@ -215,10 +258,12 @@ Note: The `.env` file is excluded via `.gitignore` and should never be committed
 * **Semantic Retrieval (RAG)**: If the product catalog expanded, I would implement a vector database for semantic search rather than relying on keyword matching.
 
 ## 15. AI Tooling Disclosure
-To accelerate development while ensuring high code quality, AI-assisted development tools (including ChatGPT and Antigravity) were utilized during the creation of this project. 
-AI was primarily used to accelerate boilerplate generation (e.g., React scaffolding, CSS framing) and iterating on prompt refinement. 
-
-However, all architectural design decisions, state-management strategies, the deterministic/LLM separation pattern, and test verifications were heavily manually curated, thoroughly reviewed, and deliberately enforced.
+Used ChatGPT during the initial stages for requirement analysis, architectural planning, optimization discussions and implementation guidance.   
+Used Claude for generating structured development plans, workflow breakdowns and directional guidance throughout development.    
+Followed and manually executed these plans step-by-step for setup, integration, configuration and implementation tasks.   
+Used Antigravity to accelerate repetitive engineering work, larger boilerplate generation, UI refinements and logic scaffolding.    
+AI-generated outputs were consistently reviewed, modified, cross-validated and manually integrated rather than directly copied into production.   
+Core architectural decisions, optimization strategies, debugging, testing, and final verification were deliberately handled through manual engineering effort to ensure correctness, maintainability and reliability.     
 
 ## 16. Repository Structure
 ```
@@ -259,6 +304,7 @@ However, all architectural design decisions, state-management strategies, the de
 
 ### Chat Example
 ![Chat Example1](docs/screenshots/chat-example-1.png)
+![Chat Example5](docs/screenshots/chat-example-5.png)
 ![Chat Example2](docs/screenshots/chat-example-2.png)
 ![Chat Example3](docs/screenshots/chat-example-3.png)
 ![Chat Example4](docs/screenshots/chat-example-4.png)
