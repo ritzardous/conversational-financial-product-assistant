@@ -295,8 +295,7 @@ Core architectural decisions, optimization strategies, debugging, testing, and f
 │   └── screenshots/
 ├── .env.example
 ├── .gitignore
-├── README.md
-└── take_home_assignment.md
+└── README.md
 ```
 
 ## 17. Screenshots Section
