@@ -7,8 +7,8 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 from groq import Groq
 
-from .logic import process_message
-from .memory import get_user_state, update_profile, append_message, reset_user
+from .logic import process_message, extract_slots, detect_intent, check_eligibility
+from .memory import get_user_state, update_profile, append_message, reset_user, get_last_logic_context, set_last_logic_context
 from .prompts import build_phrasing_prompt, SYSTEM_PROMPT
 
 # Load environment variables
@@ -43,8 +43,50 @@ def chat():
         # 1. Get user state
         state = get_user_state(user_id)
 
-        # 2. Compute logic context
-        logic_context = process_message(message, state["profile"])
+        # Detect continuation
+        previous_logic = get_last_logic_context(user_id)
+        new_slots = extract_slots(message)
+        intent_data = detect_intent(message)
+
+        is_continuation = False
+        if previous_logic and previous_logic.get("intent") == "eligibility" and previous_logic.get("requires_more_info"):
+            if len(new_slots) > 0 and intent_data["intent"] != "eligibility":
+                is_continuation = True
+
+        if is_continuation:
+            merged_profile = {**state["profile"], **new_slots}
+            targets = previous_logic.get("matched_products", [])
+            
+            all_missing = []
+            elig_results = {}
+            for pid in targets:
+                er = check_eligibility(pid, merged_profile)
+                elig_results[pid] = er
+                all_missing.extend(er["missing_fields"])
+
+            seen = set()
+            deduped_missing = []
+            for f in all_missing:
+                if f not in seen:
+                    seen.add(f)
+                    deduped_missing.append(f)
+            
+            logic_context = {
+                "intent": "eligibility",
+                "mentioned_products": previous_logic.get("mentioned_products", []),
+                "eligibility_results": elig_results,
+                "requires_more_info": len(deduped_missing) > 0,
+                "missing_fields": deduped_missing,
+                "matched_products": targets,
+                "new_slots": new_slots,
+                "merged_profile": merged_profile,
+            }
+        else:
+            # 2. Compute logic context
+            logic_context = process_message(message, state["profile"])
+
+        # Persist logic context for future continuation
+        set_last_logic_context(user_id, logic_context)
 
         # 3. Update profile
         update_profile(user_id, logic_context["new_slots"])
