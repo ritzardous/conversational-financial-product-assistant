@@ -274,6 +274,7 @@ GROQ_API_KEY=your_groq_api_key_here
 * **Streaming Responses**: Implement Server-Sent Events (SSE) on the backend and frontend to stream tokens back to the user, improving perceived latency.
 * **Dockerization**: Provide a `docker-compose.yml` file to spin up the frontend and backend simultaneously in isolated containers.
 * **Semantic Retrieval (RAG)**: If the product catalog expanded, I would implement a vector database for semantic search rather than relying on keyword matching.
+* **Voice-Based Interface**: Integrate a speech-to-text (STT) model like Whisper alongside an efficient text-to-speech (TTS) engine to create a completely hands-free, voice-first financial conversational experience.
 
 ## 16. AI Tooling Disclosure
 Used ChatGPT during the initial stages for requirement analysis, architectural planning, optimization discussions and implementation guidance.   
