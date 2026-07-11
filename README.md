@@ -1,9 +1,9 @@
 # Smart Financial Assistant
 
 ## 1. Overview
-This project is a full-stack, AI-powered financial assistant designed to hold multi-turn conversations regarding a fixed set of financial products. It supports dynamic product suggestions, multi-step eligibility checks, deterministic slot filling, and strict NLU grounding. 
+This project is a full-stack, AI-powered financial assistant designed to hold multi-turn conversations regarding a fixed set of financial products. It supports dynamic product suggestions, multi-step eligibility checks, deterministic slot filling and strict NLU grounding. 
 
-The architecture is explicitly designed to maintain absolute per-user isolation, enforce deterministic business rules independently of the Large Language Model (LLM), and leverage the LLM strictly for conversational phrasing and natural language generation.
+The architecture is explicitly designed to maintain absolute per-user isolation, enforce deterministic business rules independently of the Large Language Model (LLM) and leverage the LLM strictly for conversational phrasing and natural language generation.
 
 ## 2. Technology Stack & Choices
 
@@ -48,17 +48,17 @@ Instead:
 * The LLM is used strictly as a natural language interface. It is provided with a rigidly formatted context string containing the exact eligibility outcome (e.g., "The user is not eligible because their credit score is 600, and the minimum is 700").
 * `prompts.py` ensures the LLM's system prompt strongly enforces grounding, instructing the LLM to only read the provided deterministic context and never invent or override constraints.
 
-This approach guarantees absolute consistency in eligibility decisions, makes the business logic completely unit-testable without relying on expensive and slow LLM calls, and ensures regulatory-level safety.
+This approach guarantees absolute consistency in eligibility decisions, makes the business logic completely unit-testable without relying on expensive and slow LLM calls and ensures regulatory-level safety.
 
 ## 5. Backend Architecture
 The backend is structured to isolate responsibilities across specialized modules:
 
-* **`app.py`**: The orchestration layer (Flask API). Manages HTTP requests, invokes the memory and logic layers, handles conversational continuation flows, and communicates with the Groq LLM API.
-* **`logic.py`**: The core rules engine. Uses regex-based slot extraction to parse user data, identifies intents, checks eligibility against product constraints, and generates the exact logical context of the conversation.
-* **`memory.py`**: An in-memory key-value store mapping `user_id` to conversational state, including past messages, extracted profile slots, and the most recent logic context to enable continuous flows.
+* **`app.py`**: The orchestration layer (Flask API). Manages HTTP requests, invokes the memory and logic layers, handles conversational continuation flows and communicates with the Groq LLM API.
+* **`logic.py`**: The core rules engine. Uses regex-based slot extraction to parse user data, identifies intents, checks eligibility against product constraints and generates the exact logical context of the conversation.
+* **`memory.py`**: An in-memory key-value store mapping `user_id` to conversational state, including past messages, extracted profile slots and the most recent logic context to enable continuous flows.
 * **`prompts.py`**: A prompt generation utility that converts the deterministic output from `logic.py` into strict, grounded instructions for the LLM.
 * **`products.py`**: The static dataset containing financial product definitions and eligibility constraints.
-* **`tests/test_chat.py`**: End-to-end integration tests that run against the live local server to verify state isolation, context retention, and strict eligibility rule enforcement.
+* **`tests/test_chat.py`**: End-to-end integration tests that run against the live local server to verify state isolation, context retention and strict eligibility rule enforcement.
 
 ## 6. Conversation & Memory Flow
 
@@ -86,7 +86,7 @@ sequenceDiagram
 ```
 
 ### Conversational Continuation
-The system utilizes a lightweight continuation architecture. If a user was previously asked for missing fields (e.g., "What is your credit score?") and the user replies with raw data ("600"), `app.py` intercepts the flow, merges the new data with the in-memory profile, and re-triggers the specific product eligibility check dynamically, ensuring seamless multi-turn data gathering without losing context.
+The system utilizes a lightweight continuation architecture. If a user was previously asked for missing fields (e.g., "What is your credit score?") and the user replies with raw data ("600"), `app.py` intercepts the flow, merges the new data with the in-memory profile and re-triggers the specific product eligibility check dynamically, ensuring seamless multi-turn data gathering without losing context.
 
 ## 7. Features Implemented
 
@@ -94,7 +94,7 @@ The system utilizes a lightweight continuation architecture. If a user was previ
 |---|---|---|
 | Product Suggestion | Included | Recommends products based on user intent keywords. |
 | Eligibility Checks | Included | Evaluates exact profile data against product thresholds. |
-| Slot Filling | Included | Extracts age, income, and credit score cumulatively. |
+| Slot Filling | Included | Extracts age, income and credit score cumulatively. |
 | Multi-turn Memory | Included | Remembers previous profile slots across requests. |
 | Negative Eligibility | Included | Gracefully explains exactly why a user failed a check. |
 | Comparison | Included | Handles requests comparing multiple distinct products. |
@@ -105,7 +105,7 @@ The system utilizes a lightweight continuation architecture. If a user was previ
 | Integration Tests | Included | Full end-to-end pytest suite verifying requirements. |
 
 ## 8. Frontend Overview
-The frontend is a single-page application built with React 18, TypeScript, and Vite. 
+The frontend is a single-page application built with React 18, TypeScript and Vite. 
 
 * **State Persistence**: Uses `localStorage` to persist a unique `user_id` (UUID), ensuring users do not lose their session upon page refresh.
 * **UX Mechanics**: Follows modern chat conventions, allowing standard Enter-to-send and Shift+Enter for multiline inputs.
@@ -164,9 +164,9 @@ Simple health check endpoint.
 
 ## 10. Testing
 The project includes a robust suite of integration tests built with `pytest`. 
-These tests execute live HTTP requests against the running Flask backend. Mocks are intentionally avoided to ensure the actual end-to-end integration (including prompt building, LLM execution, and JSON parsing) functions correctly.
+These tests execute live HTTP requests against the running Flask backend. Mocks are intentionally avoided to ensure the actual end-to-end integration (including prompt building, LLM execution and JSON parsing) functions correctly.
 
-All 8 scenarios described in the assignment are fully covered, including product matching, multi-turn state retention, and strict user isolation. 
+All 8 scenarios described in the assignment are fully covered, including product matching, multi-turn state retention and strict user isolation. 
 
 *(See Screenshots Section for test execution results)*
 
@@ -282,7 +282,7 @@ Used Claude for generating structured development plans, workflow breakdowns and
 Followed and manually executed these plans step-by-step for setup, integration, configuration and implementation tasks.   
 Used Antigravity to accelerate repetitive engineering work, larger boilerplate generation, UI refinements and logic scaffolding.    
 AI-generated outputs were consistently reviewed, modified, cross-validated and manually integrated rather than directly copied into production.   
-Core architectural decisions, optimization strategies, debugging, testing, and final verification were deliberately handled through manual engineering effort to ensure correctness, maintainability and reliability.     
+Core architectural decisions, optimization strategies, debugging, testing and final verification were deliberately handled through manual engineering effort to ensure correctness, maintainability and reliability.     
 
 ## 17. Repository Structure
 ```
