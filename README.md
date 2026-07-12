@@ -166,7 +166,7 @@ Simple health check endpoint.
 The project includes a robust suite of integration tests built with `pytest`. 
 These tests execute live HTTP requests against the running Flask backend. Mocks are intentionally avoided to ensure the actual end-to-end integration (including prompt building, LLM execution and JSON parsing) functions correctly.
 
-All 8 scenarios described in the assignment are fully covered, including product matching, multi-turn state retention and strict user isolation. 
+All 8 scenarios described are fully covered, including product matching, multi-turn state retention and strict user isolation. 
 
 *(See Screenshots Section for test execution results)*
 
