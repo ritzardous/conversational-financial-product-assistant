@@ -1,4 +1,4 @@
-# Smart Financial Assistant
+# Smart Financial Assistant (Chatbot)
 
 ## 1. Overview
 This project is a full-stack, AI-powered financial assistant designed to hold multi-turn conversations regarding a fixed set of financial products. It supports dynamic product suggestions, multi-step eligibility checks, deterministic slot filling and strict NLU grounding. 
